@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Controllers\MEO;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationVerifiedMail;
+use App\Models\User;
+use App\Models\Application;
+
+class VerificationController extends Controller
+{
+    /**
+     * VERIFY MEO DOCUMENTS
+     */
+    public function verify($id)
+    {
+        // GET APPLICATION
+        $app = Application::find($id);
+
+        if (!$app) {
+            return back()->with('error', 'Application not found.');
+        }
+
+        // UPDATE STATUS TO VERIFIED
+        DB::table('applications')
+            ->where('id', $id)
+            ->update([
+                'meo_status' => 'verified',
+                'updated_at' => now()
+            ]);
+
+        DB::table('assessments')
+            ->where('application_id', $id)
+            ->where('department', 'meo')
+            ->update([
+                'verified_on' => now()
+            ]);
+
+        // ===== SEND EMAIL TO APPLICANT =====
+        $user = User::find($app->applicant_id);
+
+        if ($user && $user->email) {
+            try {
+                Mail::to($user->email)->send(
+                    new ApplicationVerifiedMail($app, 'MEO')
+                );
+            } catch (\Exception $e) {
+                return back()->with('warning', 'MEO Verified but Email Failed: ' . $e->getMessage());
+            }
+        } else {
+            return back()->with('warning', 'MEO Verified but applicant email not found.');
+        }
+
+        return back()->with('success', 'MEO Verified + Email Sent');
+    }
+}
