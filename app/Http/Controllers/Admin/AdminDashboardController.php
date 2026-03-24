@@ -93,8 +93,11 @@ class AdminDashboardController extends Controller
             ->count();
 
         $meoVerified = DB::table('applications')
-            ->where('meo_status','verified')
-            ->count();
+    ->where(function($q){
+        $q->where('meo_status','verified')
+          ->orWhere('meo_endorsed',1);
+    })
+    ->count();
 
         $bfpVerified = DB::table('applications')
             ->where('bfp_status','verified')

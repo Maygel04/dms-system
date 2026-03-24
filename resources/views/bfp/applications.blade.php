@@ -199,18 +199,18 @@ $verifiedOn = $assessment->verified_on ?? null;
 $issued = $application->bfp_issued ?? 0;
 $paid = $application->bfp_paid ?? 0;
 
-$remark = DB::table('remarks')
-        ->where('application_id', $application->id)
-        ->where('department', 'bfp')
-        ->value('remark');
+$remarks = DB::table('remarks')
+    ->where('application_id',$application->id)
+    ->where('department','bfp')
+    ->orderBy('created_at','desc')
+    ->get();
 
 @endphp
 
 
 @php  
 
-$hasRemark = !empty($remark);
-
+$hasRemark = isset($remarks) && count($remarks) > 0;
 $remarkTime = null;
 $hasReupload = false;
 
@@ -219,7 +219,8 @@ if($hasRemark){
     $remarkTime = DB::table('remarks')
         ->where('application_id',$application->id)
         ->where('department','bfp')
-        ->value('updated_at');
+        ->latest()
+->value('created_at');
 
     if($remarkTime && isset($files)){
         foreach($files as $f){
@@ -485,9 +486,10 @@ Send Remark
 
 <div class="border p-2 mb-2">
 
-{{ $r->remark }} <br>
-<small>{{ $r->created_at }}</small>
-
+{{ $r->remarks}} <br>
+<small class="text-muted">
+{{ \Carbon\Carbon::parse($r->created_at)->format('F d, Y h:i A') }}
+</small>
 </div>
 
 @endforeach

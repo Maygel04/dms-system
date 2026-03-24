@@ -1,94 +1,103 @@
 
-@extends('adminlte::page')
 
-@section('css')
-<link rel="stylesheet" href="{{ asset('css/custom-adminlte.css') }}">
-@endsection
 
-@section('content')
+
+
+<?php $__env->startSection('css'); ?>
+<link rel="stylesheet" href="<?php echo e(asset('css/custom-adminlte.css')); ?>">
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
 
 <div class="container-fluid">
 
-    {{-- SUCCESS / WARNING ALERTS --}}
-    @if(session('remark_success'))
+    
+    <?php if(session('remark_success')): ?>
         <div class="alert alert-success alert-dismissible fade show">
             <i class="fas fa-check-circle mr-2"></i>
             <strong>Success</strong><br>
-            {{ session('remark_success') }}
+            <?php echo e(session('remark_success')); ?>
+
             <button type="button" class="close" data-dismiss="alert">
                 <span>&times;</span>
             </button>
         </div>
-    @endif
+    <?php endif; ?>
 
-    @if(session('remark_warning'))
+    <?php if(session('remark_warning')): ?>
         <div class="alert alert-warning alert-dismissible fade show">
             <i class="fas fa-exclamation-triangle mr-2"></i>
             <strong>Warning</strong><br>
-            {{ session('remark_warning') }}
+            <?php echo e(session('remark_warning')); ?>
+
             <button type="button" class="close" data-dismiss="alert">
                 <span>&times;</span>
             </button>
         </div>
-    @endif
+    <?php endif; ?>
 
-    @if(session('verify_success'))
+    <?php if(session('verify_success')): ?>
         <div class="alert alert-success alert-dismissible fade show">
             <i class="fas fa-check-circle mr-2"></i>
             <strong>Success</strong><br>
-            {{ session('verify_success') }}
+            <?php echo e(session('verify_success')); ?>
+
             <button type="button" class="close" data-dismiss="alert">
                 <span>&times;</span>
             </button>
         </div>
-    @endif
+    <?php endif; ?>
 
-    @if(session('verify_warning'))
+    <?php if(session('verify_warning')): ?>
         <div class="alert alert-warning alert-dismissible fade show">
             <i class="fas fa-exclamation-triangle mr-2"></i>
             <strong>Warning</strong><br>
-            {{ session('verify_warning') }}
+            <?php echo e(session('verify_warning')); ?>
+
             <button type="button" class="close" data-dismiss="alert">
                 <span>&times;</span>
             </button>
         </div>
-    @endif
+    <?php endif; ?>
 
-    @if(session('success'))
+    <?php if(session('success')): ?>
         <div class="alert alert-success alert-dismissible fade show">
             <i class="fas fa-check-circle mr-2"></i>
             <strong>Success</strong><br>
-            {{ session('success') }}
+            <?php echo e(session('success')); ?>
+
             <button type="button" class="close" data-dismiss="alert">
                 <span>&times;</span>
             </button>
         </div>
-    @endif
+    <?php endif; ?>
 
-    @if(session('warning'))
+    <?php if(session('warning')): ?>
         <div class="alert alert-warning alert-dismissible fade show">
             <i class="fas fa-exclamation-triangle mr-2"></i>
             <strong>Warning</strong><br>
-            {{ session('warning') }}
+            <?php echo e(session('warning')); ?>
+
             <button type="button" class="close" data-dismiss="alert">
                 <span>&times;</span>
             </button>
         </div>
-    @endif
+    <?php endif; ?>
 
-    @if(session('error'))
+    <?php if(session('error')): ?>
         <div class="alert alert-danger alert-dismissible fade show">
             <i class="fas fa-times-circle mr-2"></i>
             <strong>Error</strong><br>
-            {{ session('error') }}
+            <?php echo e(session('error')); ?>
+
             <button type="button" class="close" data-dismiss="alert">
                 <span>&times;</span>
             </button>
         </div>
-    @endif
+    <?php endif; ?>
 
 
-<h4 class="mb-3">📂 MEO Applications</h4>
+<h4 class="mb-3">📂 BFP Applications</h4>
 
 <div class="card shadow-sm p-3 mb-4">
 
@@ -106,52 +115,53 @@
 
 <tbody>
 
-@forelse($applications as $a)
+<?php $__empty_1 = true; $__currentLoopData = $applications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $a): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
 
 <tr>
 
-<td>{{ $a->id }}</td>
+<td><?php echo e($a->id); ?></td>
 
-<td>{{ $a->name }}</td>
+<td><?php echo e($a->name); ?></td>
 
-<td>{{ \Carbon\Carbon::parse($a->created_at)->format('Y-m-d H:i') }}</td>
+<td><?php echo e(\Carbon\Carbon::parse($a->created_at)->format('Y-m-d H:i')); ?></td>
 
 <td>
-    @if($a->meo_endorsed == 1)
+    <?php if($a->bfp_issued == 1): ?>
 
         <span class="badge bg-primary">
-            ENDORSED
+            ISSUED
         </span>
 
-    @elseif($a->meo_status == 'assessed')
+    <?php elseif($a->bfp_status == 'assessed'): ?>
 
         <span class="badge bg-info">
             ASSESSED
         </span>
 
-    @elseif($a->meo_status == 'verified')
+    <?php elseif($a->bfp_status == 'verified'): ?>
 
         <span class="badge bg-success">
             VERIFIED
         </span>
 
-    @elseif($a->meo_status == 'pending')
+    <?php elseif($a->bfp_status == 'pending'): ?>
 
         <span class="badge bg-warning text-dark">
             UNDER REVIEW
         </span>
 
-    @else
+    <?php else: ?>
 
         <span class="badge bg-secondary">
-            {{ strtoupper($a->meo_status ?? 'N/A') }}
+            <?php echo e(strtoupper($a->bfp_status ?? 'N/A')); ?>
+
         </span>
 
-    @endif
+    <?php endif; ?>
 </td>
 
 <td>
-<a href="{{ url('/meo/applications?app_id='.$a->id) }}"
+<a href="<?php echo e(url('/bfp/applications?app_id='.$a->id)); ?>"
 class="btn btn-sm btn-primary">
 View
 </a>
@@ -159,7 +169,7 @@ View
 
 </tr>
 
-@empty
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 
 <tr>
 <td colspan="5" class="text-center text-muted">
@@ -167,7 +177,7 @@ No applications found
 </td>
 </tr>
 
-@endforelse
+<?php endif; ?>
 
 </tbody>
 </table>
@@ -175,38 +185,38 @@ No applications found
 </div>
 
 
-{{-- ================= SHOW APPLICATION DETAILS ================= --}}
-@if(request('app_id'))
 
-@php
+<?php if(request('app_id')): ?>
+
+<?php
 
 $application = \App\Models\Application::find(request('app_id'));
 
-$applicant = $application->user;
+$applicant = $application ? $application->user : null;
 
-$files = \App\Models\Document::where('application_id',$application->id)
-            ->where('department','meo')
+$files = \App\Models\Document::where('application_id', $application->id)
+            ->where('department', 'bfp')
             ->get();
 
-$assessment = \App\Models\Assessment::where('application_id',$application->id)
-            ->where('department','meo')
+$assessment = \App\Models\Assessment::where('application_id', $application->id)
+            ->where('department', 'bfp')
             ->first();
 
 $assessmentAmount = $assessment->amount ?? null;
 $verifiedOn = $assessment->verified_on ?? null;
-$endorsed = $application->meo_endorsed ?? 0;
-$paid = $application->meo_paid ?? 0;
+$issued = $application->bfp_issued ?? 0;
+$paid = $application->bfp_paid ?? 0;
 
 $remarks = DB::table('remarks')
     ->where('application_id',$application->id)
-    ->where('department','meo')
+    ->where('department','bfp')
     ->orderBy('created_at','desc')
     ->get();
 
-@endphp
+?>
 
 
-@php  
+<?php  
 
 $hasRemark = isset($remarks) && count($remarks) > 0;
 $remarkTime = null;
@@ -216,9 +226,9 @@ if($hasRemark){
 
     $remarkTime = DB::table('remarks')
         ->where('application_id',$application->id)
-        ->where('department','meo')
+        ->where('department','bfp')
         ->latest()
-        ->value('created_at');
+->value('created_at');
 
     if($remarkTime && isset($files)){
         foreach($files as $f){
@@ -232,38 +242,39 @@ if($hasRemark){
 
 $lockAssessment = $hasRemark && !$hasReupload;
 
-@endphp
+?>
 
 
 <div class="container py-4">
 
-<h2 class="mb-3">📂 MEO Submitted Requirements</h2>
+<h2 class="mb-3">📂 BFP Submitted Requirements</h2>
 
 
-{{-- APPLICANT INFO --}}
-@if($applicant)
+
+<?php if($applicant): ?>
 
 <div class="card mb-4 shadow-sm">
 <div class="card-header bg-dark text-white">Applicant Information</div>
 <div class="card-body">
 
-<p><b>Name:</b> {{ $applicant->name }}</p>
-<p><b>Contact:</b> {{ $applicant->contact_number }}</p>
-<p><b>Address:</b> {{ $applicant->address }}</p>
-<p><b>Gender:</b> {{ $applicant->gender }}</p>
-<p><b>Occupation:</b> {{ $applicant->occupation }}</p>
+<p><b>Name:</b> <?php echo e($applicant->name); ?></p>
+<p><b>Contact:</b> <?php echo e($applicant->contact_number); ?></p>
+<p><b>Address:</b> <?php echo e($applicant->address); ?></p>
+<p><b>Gender:</b> <?php echo e($applicant->gender); ?></p>
+<p><b>Occupation:</b> <?php echo e($applicant->occupation); ?></p>
 
 </div>
 </div>
 
-@endif
+<?php endif; ?>
 
 
 
-{{-- FILES --}}
+
 <div class="card shadow-sm mb-4">
 <div class="card-header bg-primary text-white">
-{{ $hasReupload ? 'Re-uploaded Documents' : 'Uploaded Documents' }}
+<?php echo e($hasReupload ? 'Re-uploaded Documents' : 'Uploaded Documents'); ?>
+
 </div>
 
 <div class="card-body p-0">
@@ -282,18 +293,19 @@ $lockAssessment = $hasRemark && !$hasReupload;
 
 <tbody>
 
-@foreach($files as $i => $f)
+<?php $__currentLoopData = $files; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $f): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
 <tr>
 
-<td>{{ $i+1 }}</td>
+<td><?php echo e($i+1); ?></td>
 
 <td>
-<b>{{ optional($applicant)->name }}</b><br>
-{{ $f->file_name }}
+<b><?php echo e(optional($applicant)->name); ?></b><br>
+<?php echo e($f->file_name); ?>
+
 </td>
 
-<td>{{ \Carbon\Carbon::parse($f->created_at)->format('Y-m-d H:i') }}</td>
+<td><?php echo e(\Carbon\Carbon::parse($f->created_at)->format('Y-m-d H:i')); ?></td>
 
 <td>
 <span class="badge bg-warning">Submitted</span>
@@ -302,7 +314,7 @@ $lockAssessment = $hasRemark && !$hasReupload;
 <td>
     <button type="button"
         class="btn btn-sm btn-primary viewFileBtn"
-        data-file="{{ asset('storage/meo_docs/'.$f->file_name) }}">
+        data-file="<?php echo e(asset('storage/bfp_docs/'.$f->file_name)); ?>">
         👁 View File
     </button>
 </td>
@@ -311,7 +323,7 @@ $lockAssessment = $hasRemark && !$hasReupload;
 
 </tr>
 
-@endforeach
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 </tbody>
 
@@ -322,18 +334,18 @@ $lockAssessment = $hasRemark && !$hasReupload;
 
 
 
-@if($lockAssessment)
+<?php if($lockAssessment): ?>
 
 <div class="alert alert-warning">
 ⛔ Applicant must re-upload corrected documents before continuing review.
 </div>
 
-@endif
+<?php endif; ?>
 
 
 
-{{-- CHECKLIST --}}
-@if(!$lockAssessment && !$assessmentAmount)
+
+<?php if(!$lockAssessment && !$assessmentAmount): ?>
 
 <div class="card shadow-sm mb-4">
 <div class="card-header bg-secondary text-white">
@@ -349,7 +361,6 @@ Checklist (Required before Assessment)
 <th>Requirement</th>
 <th>Check</th>
 </tr>
-
 
 
 <tr>
@@ -406,6 +417,23 @@ Checklist (Required before Assessment)
 <td><input type="checkbox" class="chk"></td>
 </tr>
 
+<tr>
+<td>10</td>
+<td>Fire Safety Clearance</td>
+<td><input type="checkbox" class="chk"></td>
+</tr>
+
+<tr>
+<td>11</td>
+<td>Fire Protection Plan</td>
+<td><input type="checkbox" class="chk"></td>
+</tr>
+
+<tr>
+<td>12</td>
+<td>Fire  Alarm Layout</td>
+<td><input type="checkbox" class="chk"></td>
+</tr>
 
 
 </table>
@@ -413,13 +441,13 @@ Checklist (Required before Assessment)
 </div>
 </div>
 
-@endif
+<?php endif; ?>
 
 
 
-@if(!$lockAssessment && !$assessmentAmount)
+<?php if(!$lockAssessment && !$assessmentAmount): ?>
 
-{{-- REMARK FORM --}}
+
 <div class="card shadow-sm mb-4">
 
 <div class="card-header bg-warning">
@@ -428,10 +456,10 @@ Checklist (Required before Assessment)
 
 <div class="card-body">
 
-<form method="POST" action="{{ route('meo.saveRemark') }}">
+<form method="POST" action="<?php echo e(route('bfp.saveRemark')); ?>">
 
-@csrf
-<input type="hidden" name="application_id" value="{{ $application->id }}">
+<?php echo csrf_field(); ?>
+<input type="hidden" name="application_id" value="<?php echo e($application->id); ?>">
 
 <label>Remark / Correction Needed</label>
 <textarea
@@ -449,12 +477,12 @@ Send Remark
 </div>
 </div>
 
-@endif
+<?php endif; ?>
 
 
 
-{{-- REMARK HISTORY --}}
-@if(isset($remarks) && count($remarks))
+
+<?php if(isset($remarks) && count($remarks)): ?>
 
 <div class="card shadow-sm mt-3">
 
@@ -464,27 +492,28 @@ Send Remark
 
 <div class="card-body">
 
-@foreach($remarks as $r)
+<?php $__currentLoopData = $remarks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $r): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
 <div class="border p-2 mb-2">
 
-{{ $r->remarks }} <br>
+<?php echo e($r->remarks); ?> <br>
 <small class="text-muted">
-{{ \Carbon\Carbon::parse($r->created_at)->format('F d, Y h:i A') }}
+<?php echo e(\Carbon\Carbon::parse($r->created_at)->format('F d, Y h:i A')); ?>
+
 </small>
 </div>
 
-@endforeach
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 </div>
 </div>
 
-@endif
+<?php endif; ?>
 
 
 
-{{-- SHOW ASSESSMENT AMOUNT --}}
-@if($assessmentAmount)
+
+<?php if($assessmentAmount): ?>
 
 <div class="card shadow-sm mb-3">
 
@@ -497,12 +526,13 @@ Assessment Saved
 <b>Assessment Amount:</b>
 
 <span class="badge bg-success">
-₱{{ number_format($assessmentAmount,2) }}
+₱<?php echo e(number_format($assessmentAmount,2)); ?>
+
 </span>
 
 <br><br>
 
-<a href="{{ url('/meo/receipt/'.$application->id) }}"
+<a href="<?php echo e(url('/bfp/receipt/'.$application->id)); ?>"
 class="btn btn-primary">
 
 🧾 View Receipt
@@ -513,12 +543,12 @@ class="btn btn-primary">
 
 </div>
 
-@endif
+<?php endif; ?>
 
 
 
-{{-- SHOW VERIFIED STATUS --}}
-@if($verifiedOn)
+
+<?php if($verifiedOn): ?>
 
 <div class="card shadow-sm mb-3">
 
@@ -534,53 +564,54 @@ class="btn btn-primary">
 
 <p class="mb-2">
 <b>Verified On:</b>
-{{ \Carbon\Carbon::parse($verifiedOn)->format('F d, Y h:i A') }}
+<?php echo e(\Carbon\Carbon::parse($verifiedOn)->format('F d, Y h:i A')); ?>
+
 </p>
 
 <div class="alert alert-success mb-0">
-Applicant documents have been officially verified by MEO.
+Applicant documents have been officially verified by BFP.
 </div>
 
 </div>
 
 </div>
 
-@endif
-{{-- ================= ENDORSEMENT ================= --}}
+<?php endif; ?>
 
-@if($verifiedOn)
+
+<?php if($verifiedOn): ?>
 
 <div class="card shadow-sm mb-4">
 
 <div class="card-header bg-primary text-white">
-Endorsement
+Issuance
 </div>
 
 <div class="card-body">
 
-@if(!$endorsed)
+<?php if(!$issued): ?>
 
-<form method="POST" action="{{ route('meo.issue.endorsement') }}">
-@csrf
-<input type="hidden" name="application_id" value="{{ $application->id }}">
+<form method="POST" action="<?php echo e(route('bfp.issue')); ?>">
+<?php echo csrf_field(); ?>
+<input type="hidden" name="application_id" value="<?php echo e($application->id); ?>">
 
 <button class="btn btn-success">
-✔ YES ISSUE ENDORSEMENT
+✔ YES ISSUE BFP CLEARANCE
 </button>
 
 </form>
 
-@else
+<?php else: ?>
 
 <div class="alert alert-success">
-✔ Endorsement Issued Successfully
+✔ BFP Clearance Issued Successfully
 </div>
 
-@if($paid == 0)
+<?php if($paid == 0): ?>
 
-<form method="POST" action="{{ route('meo.mark.paid') }}">
-@csrf
-<input type="hidden" name="application_id" value="{{ $application->id }}">
+<form method="POST" action="<?php echo e(route('bfp.mark.paid')); ?>">
+<?php echo csrf_field(); ?>
+<input type="hidden" name="application_id" value="<?php echo e($application->id); ?>">
 
 <button class="btn btn-warning">
 💳 PAY NOW
@@ -588,24 +619,24 @@ Endorsement
 
 </form>
 
-@else
+<?php else: ?>
 
 <div class="alert alert-success">
 ✔ Payment Completed Successfully
 </div>
 
-@endif
+<?php endif; ?>
 
-@endif
+<?php endif; ?>
 
 </div>
 </div>
 
-@endif
+<?php endif; ?>
 
 
-{{-- ASSESSMENT --}}
-@if(!$assessmentAmount && !$lockAssessment)
+
+<?php if(!$assessmentAmount && !$lockAssessment): ?>
 
 <div class="card shadow-sm mb-4" id="assessmentCard" style="display:none;">
 
@@ -615,10 +646,10 @@ Assessment
 
 <div class="card-body">
 
-<form method="POST" action="{{ route('meo.saveAssessment') }}">
-@csrf
+<form method="POST" action="<?php echo e(route('bfp.saveAssessment')); ?>">
+<?php echo csrf_field(); ?>
 
-<input type="hidden" name="application_id" value="{{ $application->id }}">
+<input type="hidden" name="application_id" value="<?php echo e($application->id); ?>">
 
 <label class="font-weight-bold">Select Assessment Fee</label>
 <select id="preset_amount" class="form-control mb-3">
@@ -651,13 +682,13 @@ Assessment
 </div>
 </div>
 
-@elseif($assessmentAmount && !$verifiedOn)
+<?php elseif($assessmentAmount && !$verifiedOn): ?>
 
 <div class="card shadow-sm mb-4">
 <div class="card-body">
 
-<form method="POST" action="{{ route('meo.verify',$application->id) }}">
-@csrf
+<form method="POST" action="<?php echo e(route('bfp.verify',$application->id)); ?>">
+<?php echo csrf_field(); ?>
 
 <button type="submit" class="btn btn-success w-100">
 ✔ VERIFY DOCUMENTS
@@ -668,7 +699,7 @@ Assessment
 </div>
 </div>
 
-@endif
+<?php endif; ?>
 
 </div>
 
@@ -776,6 +807,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-@endif
+<?php endif; ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('adminlte::page', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\bps-laravel\resources\views/bfp/applications.blade.php ENDPATH**/ ?>

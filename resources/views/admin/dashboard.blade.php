@@ -56,29 +56,25 @@
     <div class="row g-4 mb-4">
 
         <div class="col-md-3">
-            <div class="card bg-success text-white text-center p-3">
-                <h6>MPDO Verified</h6>
+<div class="card text-white text-center p-3" style="background:#6FA8DC;">                <h6>MPDO Verified</h6>
                 <h2>{{ $mpdoVerified }}</h2>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card bg-info text-white text-center p-3">
-                <h6>MEO Verified</h6>
+<div class="card text-white text-center p-3" style="background:#76C7A3;">                <h6>MEO Verified</h6>
                 <h2>{{ $meoVerified }}</h2>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card bg-primary text-white text-center p-3">
-                <h6>BFP Verified</h6>
+<div class="card text-white text-center p-3" style="background:#E57373;">                <h6>BFP Verified</h6>
                 <h2>{{ $bfpVerified }}</h2>
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="card bg-warning text-dark text-center p-3">
-                <h6>Pending Applications</h6>
+<div class="card text-dark text-center p-3" style="background:#FFD54F;">                <h6>Pending Applications</h6>
                 <h2>{{ $pending }}</h2>
             </div>
         </div>
@@ -144,11 +140,11 @@
 
                                 @if(!empty($app->file_path))
 
-                                <button
-                                    class="btn btn-sm btn-success"
-                                    onclick="openFileModal(@json(asset('storage/'.$app->file_path)))">
-                                    View
-                                </button>
+                                <button type="button"
+        class="btn btn-sm btn-primary viewFileBtn"
+        data-file="{{ asset('storage/'.$app->file_path) }}">
+        👁 View File
+    </button>
 
                                 <a href="{{ asset('storage/'.$app->file_path) }}"
                                    download
@@ -184,19 +180,27 @@
 
 </div>
 
-<!-- ================= MODAL ================= -->
-<div class="modal fade" id="fileModal" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">📄 File Preview</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body p-0">
-        <iframe id="fileFrame" src="" width="100%" height="600px" style="border: none;"></iframe>
-      </div>
+<!-- File Preview Modal -->
+<div class="modal fade" id="filePreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            
+            <div class="modal-header bg-primary text-white">
+    <h5 class="modal-title">📄 File Preview</h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+
+            <div class="modal-body p-0" style="height:80vh;">
+                <iframe id="filePreviewFrame"
+                        width="100%"
+                        height="100%"
+                        style="border:none;"></iframe>
+            </div>
+
+        </div>
     </div>
-  </div>
 </div>
 
 @endsection
@@ -225,11 +229,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         {{ $pending }}
                     ],
                     backgroundColor: [
-                        '#28a745',
-                        '#17a2b8',
-                        '#a40e0e',
-                        '#ffc107'
-                    ],
+    '#6FA8DC',  // MPDO (soft blue)
+    '#76C7A3',  // MEO (mint green)
+    '#E57373',  // BFP (soft red)
+    '#FFD54F'   // Pending (soft yellow)
+],
                     borderRadius: 8
                 }]
             },
@@ -256,18 +260,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-/* MODAL FUNCTION */
-function openFileModal(url) {
-    const iframe = document.getElementById('fileFrame');
-    iframe.src = url;
 
-    const modal = new bootstrap.Modal(document.getElementById('fileModal'));
-    modal.show();
-}
+</script>
 
-/* CLEAR iframe when modal closes */
-document.getElementById('fileModal').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('fileFrame').src = "";
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const buttons = document.querySelectorAll(".viewFileBtn");
+    const frame = document.getElementById("filePreviewFrame");
+
+    buttons.forEach(button => {
+        button.addEventListener("click", function () {
+
+            let fileUrl = this.getAttribute("data-file");
+
+            frame.src = fileUrl;
+
+            // BOOTSTRAP 4 (ADMINLTE)
+            $('#filePreviewModal').modal('show');
+        });
+    });
+
+    $('#filePreviewModal').on('hidden.bs.modal', function () {
+        frame.src = '';
+    });
+
 });
 </script>
 
