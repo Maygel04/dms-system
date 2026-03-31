@@ -38,7 +38,7 @@
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-body p-4">
 
-            <form action="{{ route('admin.upload.old') }}" method="POST" enctype="multipart/form-data">
+           <form action="{{ route('admin.upload.old.form.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="row g-3">

@@ -55,4 +55,11 @@
 
 </div>
 
+<div style="margin-bottom:15px;">
+    <a href="{{ url('/mpdo/report?filter=today') }}" class="btn btn-primary">Today</a>
+    <a href="{{ url('/mpdo/report?filter=week') }}" class="btn btn-success">Weekly</a>
+    <a href="{{ url('/mpdo/report?filter=month') }}" class="btn btn-warning">Monthly</a>
+    <a href="{{ url('/mpdo/report?filter=year') }}" class="btn btn-secondary">Yearly</a>
+</div>
+
 @endsection

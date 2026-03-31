@@ -1,10 +1,9 @@
 
 
-
-
 <?php $__env->startSection('css'); ?>
 <link rel="stylesheet" href="<?php echo e(asset('css/custom-adminlte.css')); ?>">
 <?php $__env->stopSection(); ?>
+
 <?php $__env->startSection('content'); ?>
 
 <div class="container">
@@ -14,7 +13,7 @@
         <div class="text-center mb-4">
             <h3>Municipal Building Permit System</h3>
             <h5>Daily Financial Report</h5>
-            <p>Date: <?php echo e($today); ?></p>
+            <p>Date: <?php echo e($today ?? now()->format('F d, Y')); ?></p>
         </div>
 
         <hr>
@@ -29,21 +28,21 @@
             <tbody>
                 <tr>
                     <td>MPDO</td>
-                    <td>₱<?php echo e(number_format($mpdo,2)); ?></td>
+                    <td>₱<?php echo e(number_format($mpdo ?? 0,2)); ?></td>
                 </tr>
                 <tr>
                     <td>MEO</td>
-                    <td>₱<?php echo e(number_format($meo,2)); ?></td>
+                    <td>₱<?php echo e(number_format($meo ?? 0,2)); ?></td>
                 </tr>
                 <tr>
                     <td>BFP</td>
-                    <td>₱<?php echo e(number_format($bfp,2)); ?></td>
+                    <td>₱<?php echo e(number_format($bfp ?? 0,2)); ?></td>
                 </tr>
             </tbody>
         </table>
 
         <h4 class="mt-4">
-            Total Revenue: ₱<?php echo e(number_format($total,2)); ?>
+            Total Revenue: ₱<?php echo e(number_format($total ?? 0,2)); ?>
 
         </h4>
 

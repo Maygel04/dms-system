@@ -1,17 +1,17 @@
-@extends('adminlte::page')
 
-@section('css')
-<link rel="stylesheet" href="{{ asset('css/custom-adminlte.css') }}">
-@endsection
 
-@section('content')
+<?php $__env->startSection('css'); ?>
+<link rel="stylesheet" href="<?php echo e(asset('css/custom-adminlte.css')); ?>">
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
 
 <div class="container py-4">
 
-    {{-- PRINT AREA --}}
+    
     <div id="printArea" style="background:white; padding:40px; max-width:700px; margin:auto; border:1px solid #ccc;">
 
-        {{-- HEADER --}}
+        
         <div style="text-align:center;">
             <h2 style="margin:0;">Municipal Planning & Development Office  </h2>
             <p style="margin:0;">Building Permit System</p>
@@ -19,30 +19,30 @@
             <hr>
         </div>
 
-        {{-- DETAILS --}}
+        
         <table width="100%" style="margin-top:20px;">
             <tr>
                 <td><b>Applicant Name:</b></td>
-                <td>{{ $applicant->name ?? 'N/A' }}</td>
+                <td><?php echo e($applicant->name ?? 'N/A'); ?></td>
             </tr>
             <tr>
                 <td><b>Amount Paid:</b></td>
-                <td>₱{{ number_format($assessmentAmount ?? 0,2) }}</td>
+                <td>₱<?php echo e(number_format($assessmentAmount ?? 0,2)); ?></td>
             </tr>
             <tr>
                 <td><b>Date Paid:</b></td>
                 <td>
-                    {{ $verifiedOn 
+                    <?php echo e($verifiedOn 
                         ? \Carbon\Carbon::parse($verifiedOn)->format('F d, Y h:i A') 
-                        : '-' 
-                    }}
+                        : '-'); ?>
+
                 </td>
             </tr>
         </table>
 
         <hr style="margin-top:25px;">
 
-        {{-- SIGNATURE (REALISTIC) --}}
+        
         <div style="margin-top:60px; text-align:right;">
             ___________________________<br>
             <b>Cashier / Collecting Officer</b>
@@ -50,9 +50,9 @@
 
     </div>
 
-    {{-- BUTTONS --}}
+    
     <div style="text-align:center; margin-top:20px;">
-        <a href="{{ url()->previous() }}" class="btn btn-secondary">
+        <a href="<?php echo e(url()->previous()); ?>" class="btn btn-secondary">
             ← Back
         </a>
 
@@ -63,7 +63,7 @@
 
 </div>
 
-{{-- PRINT STYLE --}}
+
 <style>
 @media print {
 
@@ -93,4 +93,5 @@
 }
 </style>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('adminlte::page', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\bps-laravel\resources\views/mpdo/receipt.blade.php ENDPATH**/ ?>

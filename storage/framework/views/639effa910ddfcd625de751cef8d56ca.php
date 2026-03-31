@@ -11,7 +11,7 @@
 <div class="card shadow-sm">
 
 <div class="card-header bg-primary text-white">
-<h5 class="mb-0">MPDO Applications (Read Only)</h5>
+<h5 class="mb-0">BFP Applications (Read Only)</h5>
 </div>
 
 <div class="card-body">
@@ -31,8 +31,9 @@
         <div class="col-md-3">
             <select name="status" class="form-control">
                 <option value="">All Status</option>
-                <option value="verified" <?php echo e(request('status')=='verified'?'selected':''); ?>>Verified</option>
-                <option value="pending" <?php echo e(request('status')=='pending'?'selected':''); ?>>Pending</option>
+<option value="pending" <?php echo e(request('status')=='pending'?'selected':''); ?>>Pending</option>
+<option value="verified" <?php echo e(request('status')=='verified'?'selected':''); ?>>Verified</option>
+<option value="issued" <?php echo e(request('status')=='issued'?'selected':''); ?>>Issued</option>
             </select>
         </div>
 
@@ -71,17 +72,32 @@
 
     </a>
 </td>
-
 <td>
-<?php if(strtolower($app->mpdo_status) == 'verified'): ?>
-<span class="badge bg-success">Verified</span>
 
-<?php elseif(strtolower($app->mpdo_status) == 'pending'): ?>
-<span class="badge bg-warning text-dark">Pending</span>
+    <?php
+        if ($app->bfp_issued == 1) {
+            $status = 'issued';
+        } else {
+            $status = strtolower($app->bfp_status);
+        }
+    ?>
 
-<?php else: ?>
-<span class="badge bg-secondary"><?php echo e($app->mpdo_status); ?></span>
-<?php endif; ?>
+    <?php if($status == 'pending'): ?>
+        <span class="badge bg-warning text-dark">Pending</span>
+
+    <?php elseif($status == 'verified'): ?>
+        <span class="badge bg-success">Verified</span>
+
+    <?php elseif($status == 'endorsed'): ?>
+        <span class="badge bg-info">Endorsed</span>
+
+    <?php elseif($status == 'issued'): ?>
+        <span class="badge bg-primary">Issued</span>
+
+    <?php else: ?>
+        <span class="badge bg-secondary"><?php echo e($status); ?></span>
+    <?php endif; ?>
+
 </td>
 
 <td><?php echo e($app->created_at); ?></td>
@@ -92,7 +108,7 @@
 
 <tr>
 <td colspan="4" class="text-center">
-No MPDO applications found
+No BFP applications found
 </td>
 </tr>
 
@@ -115,4 +131,4 @@ No MPDO applications found
 </div>
 
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('adminlte::page', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\bps-laravel\resources\views/admin/department_mpdo.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('adminlte::page', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\bps-laravel\resources\views/admin/department_bfp.blade.php ENDPATH**/ ?>

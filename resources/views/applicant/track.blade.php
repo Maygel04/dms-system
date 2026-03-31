@@ -214,5 +214,13 @@ Waiting for BFP processing and assessment...
 </div>
 
 </div>
+@if($totalFee > 0)
+   <a href="{{ url('/applicant/receipt/'.$app->id) }}">
+        🧾 View Receipt
+    </a>
+@endif
+
+
+
 
 @endsection

@@ -11,6 +11,7 @@ use App\Mail\ApplicationVerifiedMail;
 use App\Mail\RemarkNotification;
 use App\Models\User;
 use App\Models\Assessment;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -210,29 +211,53 @@ public function saveRemark(Request $request)
     }
 
     /* ================= REPORTS ================= */
-    public function reports()
-    {
-        $totalApplications = DB::table('applications')->count();
+    
+    public function report()
+{
+    $filter = request('filter', 'today');
 
-        $verified = DB::table('applications')
-            ->where('bfp_status', 'verified')
-            ->count();
-
-        $pending = DB::table('applications')
-            ->where('bfp_status', 'pending')
-            ->count();
-
-        $total = DB::table('assessments')
-            ->where('department', 'bfp')
-            ->sum('amount');
-
-        return view('bfp.reports', compact(
-            'totalApplications',
-            'verified',
-            'pending',
-            'total'
-        ));
+    if ($filter == 'today') {
+        $title = Carbon::now()->format('F d, Y');
+    } elseif ($filter == 'week') {
+        $title = "Week of " . Carbon::now()->startOfWeek()->format('M d') .
+                 " - " . Carbon::now()->endOfWeek()->format('M d, Y');
+    } elseif ($filter == 'month') {
+        $title = Carbon::now()->format('F Y');
+    } else {
+        $title = Carbon::now()->format('Y');
     }
+
+    $query = DB::table('assessments')
+        ->join('applications','applications.id','=','assessments.application_id')
+        ->join('users','users.id','=','applications.applicant_id')
+        ->where('assessments.department','bfp'); // IMPORTANT
+
+    if ($filter == 'today') {
+        $query->whereDate('assessments.created_at', Carbon::today());
+    } elseif ($filter == 'week') {
+        $query->whereBetween('assessments.created_at', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek()
+        ]);
+    } elseif ($filter == 'month') {
+        $query->whereMonth('assessments.created_at', Carbon::now()->month)
+              ->whereYear('assessments.created_at', Carbon::now()->year);
+    } else {
+        $query->whereYear('assessments.created_at', Carbon::now()->year);
+    }
+
+    $records = $query->select(
+        'users.name',
+        'assessments.amount',
+        'assessments.created_at'
+    )->get();
+
+    $total = $records->sum('amount');
+
+    return view('bfp.report', compact('records','total','title'));
+}
+
+
 
     /* ================= PAYMENTS ================= */
     public function payments()
@@ -256,27 +281,30 @@ public function saveRemark(Request $request)
     }
 
     /* ================= RECEIPT ================= */
-    public function receipt($id)
-    {
-        $application = Application::findOrFail($id);
+   public function receipt($id)
+{
+    $application = Application::findOrFail($id);
 
-        $applicant = User::find($application->applicant_id);
+    $applicant = User::find($application->applicant_id);
 
-        $assessment = Assessment::where('application_id', $id)
-            ->where('department', 'bfp')
-            ->first();
+    $assessment = Assessment::where('application_id', $id)
+        ->where('department', 'bfp')
+        ->first();
 
-        $assessmentAmount = $assessment->amount ?? 0;
-        $verifiedOn = $assessment->verified_on ?? null;
+    $assessmentAmount = $assessment->amount ?? 0;
+    $verifiedOn = $assessment->verified_on ?? null;
 
-        return view('bfp.receipt', [
-            'application' => $application,
-            'applicant' => $applicant,
-            'assessment' => $assessment,
-            'assessmentAmount' => $assessmentAmount,
-            'verifiedOn' => $verifiedOn
-        ]);
-    }
+    $title = "Official Receipt"; // ✅ ADD THIS (optional but safe)
+
+    return view('bfp.receipt', [
+        'application' => $application,
+        'applicant' => $applicant,
+        'assessment' => $assessment,
+        'assessmentAmount' => $assessmentAmount,
+        'verifiedOn' => $verifiedOn,
+        'title' => $title // ✅ PASS
+    ]);
+}
 
     /* ================= ISSUE CLEARANCE ================= */
     public function issue(Request $request, $id = null)
@@ -305,4 +333,5 @@ public function saveRemark(Request $request)
 
         return back()->with('success', 'Payment marked as PAID successfully.');
     }
+    
 }

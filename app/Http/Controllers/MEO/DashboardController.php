@@ -12,6 +12,7 @@ use App\Mail\RemarkNotification;
 use App\Models\Document;
 use App\Models\User;
 use App\Models\Assessment;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -233,30 +234,51 @@ public function saveRemark(Request $request)
 
     /* ================= REPORTS ================= */
 
-    public function reports()
-    {
+    public function report()
+{
+    $filter = request('filter', 'today');
 
-        $totalApplications = DB::table('applications')->count();
-
-        $verified = DB::table('applications')
-            ->where('meo_status','verified')
-            ->count();
-
-        $pending = DB::table('applications')
-            ->where('meo_status','pending')
-            ->count();
-
-        $total = DB::table('assessments')
-            ->where('department','meo')
-            ->sum('amount');
-
-        return view('meo.reports',compact(
-            'totalApplications',
-            'verified',
-            'pending',
-            'total'
-        ));
+    if ($filter == 'today') {
+        $title = Carbon::now()->format('F d, Y');
+    } elseif ($filter == 'week') {
+        $title = "Week of " . Carbon::now()->startOfWeek()->format('M d') .
+                 " - " . Carbon::now()->endOfWeek()->format('M d, Y');
+    } elseif ($filter == 'month') {
+        $title = Carbon::now()->format('F Y');
+    } else {
+        $title = Carbon::now()->format('Y');
     }
+
+    $query = DB::table('assessments')
+        ->join('applications','applications.id','=','assessments.application_id')
+        ->join('users','users.id','=','applications.applicant_id')
+        ->where('assessments.department','meo'); // IMPORTANT
+
+    if ($filter == 'today') {
+        $query->whereDate('assessments.created_at', Carbon::today());
+    } elseif ($filter == 'week') {
+        $query->whereBetween('assessments.created_at', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek()
+        ]);
+    } elseif ($filter == 'month') {
+        $query->whereMonth('assessments.created_at', Carbon::now()->month)
+              ->whereYear('assessments.created_at', Carbon::now()->year);
+    } else {
+        $query->whereYear('assessments.created_at', Carbon::now()->year);
+    }
+
+    $records = $query->select(
+        'users.name',
+        'assessments.amount',
+        'assessments.created_at'
+    )->get();
+
+    $total = $records->sum('amount');
+
+    return view('meo.report', compact('records','total','title'));
+}
+
 
 
 
@@ -295,23 +317,24 @@ public function receipt($id)
     // Get applicant
     $applicant = User::find($application->applicant_id);
 
-    // Get assessment
+    // Get assessment (MEO)
     $assessment = Assessment::where('application_id', $id)
         ->where('department', 'meo')
         ->first();
 
-    // Get amount safely
+    // Safe values
     $assessmentAmount = $assessment->amount ?? 0;
-
-    // Get verified date safely
     $verifiedOn = $assessment->verified_on ?? null;
+
+    $title = "Official Receipt - MEO"; // ✅ ADD
 
     return view('meo.receipt', [
         'application' => $application,
         'applicant' => $applicant,
         'assessment' => $assessment,
         'assessmentAmount' => $assessmentAmount,
-        'verifiedOn' => $verifiedOn
+        'verifiedOn' => $verifiedOn,
+        'title' => $title // ✅ PASS
     ]);
 }
     

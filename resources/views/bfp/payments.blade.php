@@ -1,6 +1,4 @@
 @extends('adminlte::page')
-
-
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/custom-adminlte.css') }}">
 @endsection
@@ -55,6 +53,13 @@
 </div>
 </div>
 
+</div>
+
+<div style="margin-bottom:15px;">
+    <a href="{{ url('/bfp/report?filter=today') }}" class="btn btn-primary">Today</a>
+    <a href="{{ url('/bfp/report?filter=week') }}" class="btn btn-success">Weekly</a>
+    <a href="{{ url('/bfp/report?filter=month') }}" class="btn btn-warning">Monthly</a>
+    <a href="{{ url('/bfp/report?filter=year') }}" class="btn btn-secondary">Yearly</a>
 </div>
 
 @endsection

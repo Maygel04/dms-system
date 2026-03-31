@@ -1,6 +1,4 @@
 
-
-
 <?php $__env->startSection('css'); ?>
 <link rel="stylesheet" href="<?php echo e(asset('css/custom-adminlte.css')); ?>">
 <?php $__env->stopSection(); ?>
@@ -55,6 +53,13 @@
 </div>
 </div>
 
+</div>
+
+<div style="margin-bottom:15px;">
+    <a href="<?php echo e(url('/bfp/report?filter=today')); ?>" class="btn btn-primary">Today</a>
+    <a href="<?php echo e(url('/bfp/report?filter=week')); ?>" class="btn btn-success">Weekly</a>
+    <a href="<?php echo e(url('/bfp/report?filter=month')); ?>" class="btn btn-warning">Monthly</a>
+    <a href="<?php echo e(url('/bfp/report?filter=year')); ?>" class="btn btn-secondary">Yearly</a>
 </div>
 
 <?php $__env->stopSection(); ?>

@@ -256,27 +256,109 @@ public function showUploadOldForm()
 
     /* ================= ADMIN VIEW MPDO ================= */
 
-    public function mpdoView()
-    {
+  public function mpdoView(Request $request)
+{
+    $query = DB::table('applications as a')
+        ->join('users as u','u.id','=','a.applicant_id')
+        ->select(
+            'a.id',
+            'u.name',
+            'a.mpdo_status',
+            'a.created_at'
+        );
 
-        $applications = DB::table('applications as a')
-            ->join('users as u','u.id','=','a.applicant_id')
-            ->select(
-                'a.id',
-                'u.name',
-                'a.mpdo_status',
-                'a.meo_status',
-                'a.bfp_status',
-                'a.created_at'
-            )
-            ->latest()
-            ->get();
+    /* ================= SEARCH ================= */
+    if ($request->search) {
+        $query->where('u.name', 'like', '%' . $request->search . '%');
+    }
 
-        return view('admin.department_mpdo',compact('applications'));
+    /* ================= FILTER ================= */
+    $filter = $request->filter ?? 'today';
+
+    /* ================= BASE QUERIES ================= */
+    $mpdoQuery = DB::table('assessments')->where('department','mpdo');
+    $meoQuery  = DB::table('assessments')->where('department','meo');
+    $bfpQuery  = DB::table('assessments')->where('department','bfp');
+
+    /* ================= APPLY FILTER ================= */
+    if ($filter == 'today') {
+
+        $mpdoQuery->whereDate('created_at', now());
+        $meoQuery->whereDate('created_at', now());
+        $bfpQuery->whereDate('created_at', now());
+
+    } elseif ($filter == 'week') {
+
+        $mpdoQuery->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+        $meoQuery->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+        $bfpQuery->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+
+    } elseif ($filter == 'month') {
+
+        $mpdoQuery->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+        $meoQuery->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+        $bfpQuery->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+
+    } else {
+
+        $mpdoQuery->whereYear('created_at', now()->year);
+        $meoQuery->whereYear('created_at', now()->year);
+        $bfpQuery->whereYear('created_at', now()->year);
 
     }
 
+    /* ================= TOTALS ================= */
+    $mpdo = $mpdoQuery->sum('amount');
+    $meo  = $meoQuery->sum('amount');
+    $bfp  = $bfpQuery->sum('amount');
 
+    /* ================= LIST ================= */
+    $mpdoList = DB::table('assessments')
+    ->join('applications','applications.id','=','assessments.application_id')
+    ->join('users','users.id','=','applications.applicant_id')
+    ->where('assessments.department','mpdo')
+    ->select(
+        'users.name',
+        'assessments.amount',
+        'assessments.created_at'
+    )
+    ->latest('assessments.created_at')
+    ->get();
+
+    $meoList = DB::table('assessments')
+    ->join('applications','applications.id','=','assessments.application_id')
+    ->join('users','users.id','=','applications.applicant_id')
+    ->where('assessments.department','meo')
+    ->select(
+        'users.name',
+        'assessments.amount',
+        'assessments.created_at'
+    )
+    ->latest('assessments.created_at')
+    ->get();
+
+    $bfpList = DB::table('assessments')
+    ->join('applications','applications.id','=','assessments.application_id')
+    ->join('users','users.id','=','applications.applicant_id')
+    ->where('assessments.department','bfp')
+    ->select(
+        'users.name',
+        'assessments.amount',
+        'assessments.created_at'
+    )
+    ->latest('assessments.created_at')
+    ->get();
+
+    /* ================= TOTAL ================= */
+    $total = $mpdo + $meo + $bfp;
+
+    /* ================= RETURN ================= */
+    return view('admin.payments', compact(
+        'mpdo','meo','bfp',
+        'mpdoList','meoList','bfpList',
+        'total','filter'
+    ));
+}
 
     /* ================= ADMIN VIEW MEO ================= */
 
@@ -374,35 +456,111 @@ public function payments(Request $request)
 {
     $filter = $request->filter ?? 'today';
 
+    // ================= DATE FILTER =================
     if ($filter == 'today') {
-        $dateFilter = [Carbon::today(), Carbon::tomorrow()];
-    } elseif ($filter == 'week') {
-        $dateFilter = [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()];
-    } else {
-        $dateFilter = [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()];
+        $queryDate = fn($q) =>
+            $q->whereDate('assessments.created_at', now());
     }
 
+    elseif ($filter == 'week') {
+        $queryDate = fn($q) =>
+            $q->whereBetween('assessments.created_at', [
+                now()->startOfWeek(),
+                now()->endOfWeek()
+            ]);
+    }
+
+    elseif ($filter == 'month') {
+        $queryDate = fn($q) =>
+            $q->whereMonth('assessments.created_at', now()->month);
+    }
+
+    else { // year
+        $queryDate = fn($q) =>
+            $q->whereYear('assessments.created_at', now()->year);
+    }
+
+
+    // ================= REVENUE =================
     $mpdo = DB::table('assessments')
-        ->where('department','mpdo')
-        ->whereBetween('created_at', $dateFilter)
+        ->where('department', 'mpdo')
+        ->where($queryDate)
         ->sum('amount');
 
     $meo = DB::table('assessments')
-        ->where('department','meo')
-        ->whereBetween('created_at', $dateFilter)
+        ->where('department', 'meo')
+        ->where($queryDate)
         ->sum('amount');
 
     $bfp = DB::table('assessments')
-        ->where('department','bfp')
-        ->whereBetween('created_at', $dateFilter)
+        ->where('department', 'bfp')
+        ->where($queryDate)
         ->sum('amount');
 
+
+    // ================= MPDO LIST =================
+   $mpdoList = DB::table('assessments')
+    ->join('applications', 'applications.id', '=', 'assessments.application_id')
+    ->join('users', 'users.id', '=', 'applications.applicant_id')
+    ->where('assessments.department', 'mpdo')
+    ->where('applications.mpdo_status', 'verified') // ✅ ADD THIS
+    ->where($queryDate)
+    ->select(
+        'users.name',
+        'assessments.amount',
+        'assessments.created_at'
+    )
+    ->latest('assessments.created_at')
+    ->get();
+
+
+    // ================= MEO LIST =================
+     $meoList = DB::table('assessments')
+    ->join('applications', 'applications.id', '=', 'assessments.application_id')
+    ->join('users', 'users.id', '=', 'applications.applicant_id')
+    ->where('assessments.department', 'meo')
+    ->where($queryDate)
+    ->select(
+        'users.name',
+        'assessments.amount',
+        'assessments.created_at'
+    )
+    ->latest('assessments.created_at')
+    ->get();
+
+
+    // ================= BFP LIST =================
+    $bfpList = DB::table('assessments')
+    ->join('applications', 'applications.id', '=', 'assessments.application_id')
+    ->join('users', 'users.id', '=', 'applications.applicant_id')
+    ->where('assessments.department', 'bfp')
+    ->where('applications.bfp_status', 'verified') // ✅ ADD
+    ->where($queryDate)
+    ->select(
+        'users.name',
+        'assessments.amount',
+        'assessments.created_at'
+    )
+    ->latest('assessments.created_at')
+    ->get();
+
+
+    // ================= TOTAL =================
     $total = $mpdo + $meo + $bfp;
 
-    return view('admin.payments', compact('mpdo','meo','bfp','total','filter'));
+
+    // ================= RETURN =================
+    return view('admin.payments', compact(
+        'mpdo',
+        'meo',
+        'bfp',
+        'mpdoList',
+        'meoList',
+        'bfpList',
+        'total',
+        'filter'
+    ));
 }
-
-
 
     /* ================= SYSTEM LOGS ================= */
 
@@ -420,28 +578,184 @@ public function payments(Request $request)
     }
 
 
+
 public function generateReport()
 {
-    $today = Carbon::now()->format('F d, Y');
+    $filter = request('filter', 'today');
 
-    $mpdo = DB::table('assessments')
-        ->where('department','mpdo')
-        ->whereDate('created_at', Carbon::today())
-        ->sum('amount');
+    // ================= DATE TITLE =================
+    if ($filter == 'today') {
+        $today = Carbon::now()->format('F d, Y');
 
-    $meo = DB::table('assessments')
-        ->where('department','meo')
-        ->whereDate('created_at', Carbon::today())
-        ->sum('amount');
+    } elseif ($filter == 'week') {
+        $today = "Week of " . Carbon::now()->startOfWeek(Carbon::MONDAY)->format('M d') .
+                 " - " . Carbon::now()->endOfWeek(Carbon::SUNDAY)->format('M d, Y');
 
-    $bfp = DB::table('assessments')
-        ->where('department','bfp')
-        ->whereDate('created_at', Carbon::today())
-        ->sum('amount');
+    } elseif ($filter == 'month') {
+        $today = Carbon::now()->format('F Y');
+
+    } else {
+        $today = Carbon::now()->format('Y');
+    }
+
+    // ================= QUERY =================
+    $mpdoQuery = DB::table('assessments')->where('department','mpdo');
+    $meoQuery  = DB::table('assessments')->where('department','meo');
+    $bfpQuery  = DB::table('assessments')->where('department','bfp');
+
+    // ================= APPLY FILTER (FIXED) =================
+    if ($filter == 'today') {
+
+        $mpdoQuery->whereDate('created_at', Carbon::today());
+        $meoQuery->whereDate('created_at', Carbon::today());
+        $bfpQuery->whereDate('created_at', Carbon::today());
+
+    } elseif ($filter == 'week') {
+
+        $mpdoQuery->whereBetween('created_at', [
+            Carbon::now()->startOfWeek(Carbon::MONDAY),
+            Carbon::now()->endOfWeek(Carbon::SUNDAY)
+        ]);
+
+        $meoQuery->whereBetween('created_at', [
+            Carbon::now()->startOfWeek(Carbon::MONDAY),
+            Carbon::now()->endOfWeek(Carbon::SUNDAY)
+        ]);
+
+        $bfpQuery->whereBetween('created_at', [
+            Carbon::now()->startOfWeek(Carbon::MONDAY),
+            Carbon::now()->endOfWeek(Carbon::SUNDAY)
+        ]);
+
+    } elseif ($filter == 'month') {
+
+        $mpdoQuery->whereMonth('created_at', Carbon::now()->month)
+                  ->whereYear('created_at', Carbon::now()->year);
+
+        $meoQuery->whereMonth('created_at', Carbon::now()->month)
+                 ->whereYear('created_at', Carbon::now()->year);
+
+        $bfpQuery->whereMonth('created_at', Carbon::now()->month)
+                 ->whereYear('created_at', Carbon::now()->year);
+
+    } elseif ($filter == 'year') {
+
+        $mpdoQuery->whereYear('created_at', Carbon::now()->year);
+        $meoQuery->whereYear('created_at', Carbon::now()->year);
+        $bfpQuery->whereYear('created_at', Carbon::now()->year);
+    }
+
+    // ================= TOTAL =================
+    $mpdo = $mpdoQuery->sum('amount');
+    $meo  = $meoQuery->sum('amount');
+    $bfp  = $bfpQuery->sum('amount');
 
     $total = $mpdo + $meo + $bfp;
 
-    return view('admin.report', compact('mpdo','meo','bfp','total','today'));
+    return view('admin.report', compact(
+        'today',
+        'mpdo',
+        'meo',
+        'bfp',
+        'total'
+    ));
 }
+/* ================= VIEW DOCUMENTS ================= */
+public function viewApplicantDocs($id)
+{
+    $documents = DB::table('documents')
+        ->where('application_id', $id)
+        ->get();
+
+    return view('admin.applicant_documents', compact('documents', 'id'));
+}
+
+
+/* ================= MPDO ================= */
+public function mpdoApplications(Request $request)
+{
+    $query = DB::table('applications as a')
+        ->join('users as u','u.id','=','a.applicant_id')
+        ->select(
+            'a.id',
+            'u.name',
+            'a.mpdo_status',
+            'a.created_at'
+        );
+
+    if ($request->search) {
+        $query->where('u.name','like','%'.$request->search.'%');
+    }
+
+    if ($request->status) {
+        $query->where('a.mpdo_status',$request->status);
+    }
+
+    $applications = $query->latest('a.created_at')->get();
+
+    return view('admin.department_mpdo', compact('applications'));
+}
+
+
+/* ================= MEO ================= */
+public function meoApplications(Request $request)
+{
+    $query = DB::table('applications as a')
+        ->join('users as u','u.id','=','a.applicant_id')
+        ->select(
+            'a.id',
+            'u.name',
+            'a.meo_status',
+            'a.created_at'
+        );
+
+    if ($request->search) {
+        $query->where('u.name','like','%'.$request->search.'%');
+    }
+
+    if ($request->status) {
+        $query->where('a.meo_status',$request->status);
+    }
+
+    $applications = $query->latest('a.created_at')->get();
+
+    return view('admin.department_meo', compact('applications'));
+}
+
+
+/* ================= BFP ================= */
+public function bfpApplications(Request $request)
+{
+    $query = DB::table('applications as a')
+        ->join('users as u','u.id','=','a.applicant_id')
+        ->select(
+    'a.id',
+    'u.name',
+    'a.bfp_status',
+    'a.bfp_issued', // ✅ kinahanglan ni
+    'a.created_at'
+);
+
+    if ($request->search) {
+        $query->where('u.name','like','%'.$request->search.'%');
+    }
+
+   if ($request->status) {
+
+    if ($request->status == 'issued') {
+        $query->where('a.bfp_issued', 1);
+    } else {
+        $query->where('a.bfp_status', $request->status);
+    }
+
+}
+
+    $applications = $query->latest('a.created_at')->get();
+
+    return view('admin.department_bfp', compact('applications'));
+}
+
+
+
 
 }

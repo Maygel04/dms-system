@@ -161,7 +161,8 @@ class TrackController extends Controller
         $meoAmt  = $assessments['meo'] ?? 0;
         $bfpAmt  = $assessments['bfp'] ?? 0;
 
-        $total = $mpdoAmt + $meoAmt;
+        $totalFee = ($mpdoAmt ?? 0) + ($meoAmt ?? 0) + ($bfpAmt ?? 0);
+$total = $totalFee;
 
         /* ===== FLAGS ===== */
 
@@ -176,31 +177,35 @@ class TrackController extends Controller
             ->where('department','bfp')
             ->exists();
 
-        return view('applicant.track',compact(
-            'app',
-            'remarks',
-            'mpdo',
-            'meo',
-            'bfp',
-            'mpdoAmt',
-            'meoAmt',
-            'bfpAmt',
-            'total',
-            'isIssuedMEO',
-            'mpdoPaid',
-            'meoPaid',
-            'bfpPaid',
-            'bfpHasDocs',
-            'mpdoRemark',
-            'meoRemark',
-            'bfpRemark',
-            'mpdoReuploaded',
-            'meoReuploaded',
-            'bfpReuploaded',
-            'mpdoCanReupload',
-            'meoCanReupload',
-            'bfpCanReupload'
-        ));
+       $totalFee = ($mpdoAmt ?? 0) + ($meoAmt ?? 0) + ($bfpAmt ?? 0);
+$total = $totalFee;
+
+return view('applicant.track',compact(
+    'app',
+    'remarks',
+    'mpdo',
+    'meo',
+    'bfp',
+    'mpdoAmt',
+    'meoAmt',
+    'bfpAmt',
+    'total',
+    'totalFee', // ✅ MAO NI IMPORTANTE
+    'isIssuedMEO',
+    'mpdoPaid',
+    'meoPaid',
+    'bfpPaid',
+    'bfpHasDocs',
+    'mpdoRemark',
+    'meoRemark',
+    'bfpRemark',
+    'mpdoReuploaded',
+    'meoReuploaded',
+    'bfpReuploaded',
+    'mpdoCanReupload',
+    'meoCanReupload',
+    'bfpCanReupload'
+));
     }
 
     /* ===== STATUS LOGIC ===== */
@@ -228,4 +233,27 @@ class TrackController extends Controller
         return ['status'=>'review','label'=>'🔍 Under Review'];
     }
 
+
+
+    public function receipt($id)
+{
+    $application = DB::table('applications')
+        ->join('users','users.id','=','applications.applicant_id')
+        ->where('applications.id',$id)
+        ->select('applications.*','users.name')
+        ->first();
+
+    $payments = DB::table('assessments')
+        ->where('application_id',$id)
+        ->select('department','amount','created_at')
+        ->get();
+
+    $total = $payments->sum('amount');
+
+    return view('applicant.receipt', compact(
+        'application',
+        'payments',
+        'total'
+    ));
+}
 }

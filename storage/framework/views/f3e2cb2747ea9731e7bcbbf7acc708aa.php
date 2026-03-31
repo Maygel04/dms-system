@@ -55,5 +55,12 @@
 
 </div>
 
+<div style="margin-bottom:15px;">
+    <a href="<?php echo e(url('/mpdo/report?filter=today')); ?>" class="btn btn-primary">Today</a>
+    <a href="<?php echo e(url('/mpdo/report?filter=week')); ?>" class="btn btn-success">Weekly</a>
+    <a href="<?php echo e(url('/mpdo/report?filter=month')); ?>" class="btn btn-warning">Monthly</a>
+    <a href="<?php echo e(url('/mpdo/report?filter=year')); ?>" class="btn btn-secondary">Yearly</a>
+</div>
+
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('adminlte::page', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\bps-laravel\resources\views/mpdo/payments.blade.php ENDPATH**/ ?>

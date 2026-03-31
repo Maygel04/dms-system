@@ -222,6 +222,14 @@ Waiting for BFP processing and assessment...
 </div>
 
 </div>
+<?php if($totalFee > 0): ?>
+   <a href="<?php echo e(url('/applicant/receipt/'.$app->id)); ?>">
+        🧾 View Receipt
+    </a>
+<?php endif; ?>
+
+
+
 
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('adminlte::page', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\bps-laravel\resources\views/applicant/track.blade.php ENDPATH**/ ?>

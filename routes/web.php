@@ -62,42 +62,50 @@ Route::middleware(['auth'])->group(function () {
     /* ===================================================== */
     /* ================= ADMIN ============================== */
     /* ===================================================== */
-    Route::middleware(['role:admin'])
-        ->prefix('admin')
-        ->name('admin.')
-        ->group(function () {
+   Route::middleware(['role:admin'])
+->prefix('admin')
+->name('admin.')
+->group(function () {
 
-            Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-            Route::get('/users', [UserController::class, 'index'])->name('users');
-            Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
-            Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+    Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
+    Route::post('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
 
-            Route::get('/create-user', [UserController::class, 'create'])->name('create.user');
-            Route::post('/create-user', [UserController::class, 'store'])->name('store.user');
+    Route::get('/create-user', [UserController::class, 'create'])->name('create.user');
+    Route::post('/create-user', [UserController::class, 'store'])->name('store.user');
 
-            Route::get('/upload-old-form', [AdminDashboardController::class, 'showUploadOldForm'])->name('upload.old.form');
-            Route::post('/upload-old-form', [AdminDashboardController::class, 'uploadOld'])->name('upload.old.form.store');
-            Route::post('/upload-old', [AdminDashboardController::class, 'uploadOld'])->name('upload.old');
+    Route::get('/upload-old-form', [AdminDashboardController::class, 'showUploadOldForm'])->name('upload.old.form');
+    Route::post('/upload-old-form', [AdminDashboardController::class, 'uploadOld'])->name('upload.old.form.store');
 
-            Route::get('/departments', [AdminDashboardController::class, 'departments'])->name('departments');
-            Route::get('/departments/mpdo', [AdminDashboardController::class, 'mpdoView'])->name('departments.mpdo');
-            Route::get('/departments/meo', [AdminDashboardController::class, 'meoView'])->name('departments.meo');
-            Route::get('/departments/bfp', [AdminDashboardController::class, 'bfpView'])->name('departments.bfp');
+    // ✅ FIXED (REMOVE DOUBLE ADMIN)
+    Route::get('/departments', [AdminDashboardController::class, 'departments'])
+        ->name('departments');
 
-            Route::get('/notifications', [AdminDashboardController::class, 'notifications'])->name('notifications');
-            Route::get('/reports', [AdminDashboardController::class, 'reports'])->name('reports');
-            Route::get('/payments', [AdminDashboardController::class, 'payments'])->name('payments');
-            Route::get('/logs', [AdminDashboardController::class, 'logs'])->name('logs');
-            Route::get('/applications', [AdminDashboardController::class, 'applications'])->name('applications');
+    Route::get('/departments/mpdo', [AdminDashboardController::class, 'mpdoApplications'])
+        ->name('departments.mpdo');
+    Route::get('/departments/meo', [AdminDashboardController::class, 'meoApplications'])
+        ->name('departments.meo');
+    Route::get('/departments/bfp', [AdminDashboardController::class, 'bfpApplications'])
+        ->name('departments.bfp');
 
-            Route::get('/backup', [BackupController::class, 'index'])->name('backup');
-            Route::post('/backup/database', [BackupController::class, 'databaseBackup'])->name('backup.database');
+    // ✅ IMPORTANT (ONLY ONE ROUTE)
+    Route::get('/applicant/{id}/documents', [AdminDashboardController::class, 'viewApplicantDocs'])
+        ->name('applicant_documents');
 
-            Route::get('/report/generate', [AdminDashboardController::class, 'generateReport'])
-            ->name('admin.generate.report');
-});
-      
+    Route::get('/notifications', [AdminDashboardController::class, 'notifications'])->name('notifications');
+    Route::get('/reports', [AdminDashboardController::class, 'reports'])->name('reports');
+    Route::get('/payments', [AdminDashboardController::class, 'payments'])->name('payments');
+    Route::get('/logs', [AdminDashboardController::class, 'logs'])->name('logs');
+    Route::get('/applications', [AdminDashboardController::class, 'applications'])->name('applications');
+
+    Route::get('/backup', [BackupController::class, 'index'])->name('backup');
+    Route::post('/backup/database', [BackupController::class, 'databaseBackup'])->name('backup.database');
+
+    Route::get('/report/generate', [AdminDashboardController::class, 'generateReport'])
+        ->name('generate.report');
+});   
 
     /* ===================================================== */
     /* ================= APPLICANT ========================== */
@@ -124,6 +132,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/save-payment', [TrackController::class, 'savePayment'])->name('save_payment');
 
             Route::get('/applications', [ApplicantDashboardController::class, 'index'])->name('applications');
+
+
+            Route::get('/receipt/{id}', [TrackController::class, 'receipt']);
         });
 
     /* ===================================================== */
@@ -143,6 +154,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/notifications', fn() => view('mpdo.notifications'))->name('notifications');
             Route::get('/reports', [MPDODashboard::class, 'reports'])->name('reports');
             Route::get('/payments', [MPDODashboard::class, 'payments'])->name('payments');
+            Route::get('/report', [MPDODashboard::class, 'report'])->name('report');
+
+
         });
 
     /* ===================================================== */
@@ -164,6 +178,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/notifications', fn() => view('meo.notifications'))->name('notifications');
             Route::get('/reports', [MEODashboard::class, 'reports'])->name('reports');
             Route::get('/payments', [MEODashboard::class, 'payments'])->name('payments');
+            Route::get('/report', [MEODashboard::class, 'report'])->name('report');
+
         });
 
     /* ===================================================== */
@@ -185,6 +201,12 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/reports', [BFPDashboard::class, 'reports'])->name('reports');
             Route::get('/payments', [BFPDashboard::class, 'payments'])->name('payments');
             Route::get('/receipt/{id}', [BFPDashboard::class, 'receipt'])->name('receipt');
+
+        // ✅ ADD THIS
+        Route::get('/receipt/{id}/pdf', [BFPDashboard::class, 'downloadReceipt'])
+            ->name('receipt.pdf');
+            Route::get('/report', [BFPDashboard::class, 'report'])->name('report');
+
         });
 });
 

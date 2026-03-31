@@ -1,13 +1,13 @@
 @extends('adminlte::page')
-
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/custom-adminlte.css') }}">
 @endsection
+
 @section('content')
 
 <div class="container-fluid">
 
-<h3 class="mb-4">💰 BFP Payments / Assessment</h3>
+<h3 class="mb-4">💰 MEO Payments / Assessment</h3>
 
 {{-- TOTAL --}}
 <div class="card shadow-sm border-0 mb-4 text-center p-3">
@@ -53,6 +53,13 @@
 </div>
 </div>
 
+</div>
+
+<div style="margin-bottom:15px;">
+    <a href="{{ url('/meo/report?filter=today') }}" class="btn btn-primary">Today</a>
+    <a href="{{ url('/meo/report?filter=week') }}" class="btn btn-success">Weekly</a>
+    <a href="{{ url('/meo/report?filter=month') }}" class="btn btn-warning">Monthly</a>
+    <a href="{{ url('/meo/report?filter=year') }}" class="btn btn-secondary">Yearly</a>
 </div>
 
 @endsection

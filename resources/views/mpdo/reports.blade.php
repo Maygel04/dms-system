@@ -16,4 +16,13 @@
 
 </div>
 
+<div style="margin-top:15px;">
+    <a href="{{ url('/mpdo/payments') }}" class="btn btn-secondary">
+        ⬅ Back to Payments
+    </a>
+
+    <button onclick="window.print()" class="btn btn-primary">
+        🖨 Print / Save PDF
+    </button>
+</div>
 @endsection

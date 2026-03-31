@@ -11,7 +11,7 @@
 <div class="card shadow-sm">
 
 <div class="card-header bg-primary text-white">
-<h5 class="mb-0">MPDO Applications (Read Only)</h5>
+<h5 class="mb-0">MEO Applications (Read Only)</h5>
 </div>
 
 <div class="card-body">
@@ -31,8 +31,10 @@
         <div class="col-md-3">
             <select name="status" class="form-control">
                 <option value="">All Status</option>
-                <option value="verified" <?php echo e(request('status')=='verified'?'selected':''); ?>>Verified</option>
-                <option value="pending" <?php echo e(request('status')=='pending'?'selected':''); ?>>Pending</option>
+<option value="pending" <?php echo e(request('status')=='pending'?'selected':''); ?>>Pending</option>
+<option value="verified" <?php echo e(request('status')=='verified'?'selected':''); ?>>Verified</option>
+<option value="endorsed" <?php echo e(request('status')=='endorsed'?'selected':''); ?>>Endorsed</option>
+
             </select>
         </div>
 
@@ -73,14 +75,14 @@
 </td>
 
 <td>
-<?php if(strtolower($app->mpdo_status) == 'verified'): ?>
+<?php if(strtolower($app->meo_status) == 'verified'): ?>
 <span class="badge bg-success">Verified</span>
 
-<?php elseif(strtolower($app->mpdo_status) == 'pending'): ?>
+<?php elseif(strtolower($app->meo_status) == 'pending'): ?>
 <span class="badge bg-warning text-dark">Pending</span>
 
 <?php else: ?>
-<span class="badge bg-secondary"><?php echo e($app->mpdo_status); ?></span>
+<span class="badge bg-secondary"><?php echo e($app->meo_status); ?></span>
 <?php endif; ?>
 </td>
 
@@ -92,7 +94,7 @@
 
 <tr>
 <td colspan="4" class="text-center">
-No MPDO applications found
+No MEO applications found
 </td>
 </tr>
 
@@ -115,4 +117,4 @@ No MPDO applications found
 </div>
 
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('adminlte::page', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\bps-laravel\resources\views/admin/department_mpdo.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('adminlte::page', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\bps-laravel\resources\views/admin/department_meo.blade.php ENDPATH**/ ?>
